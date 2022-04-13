@@ -102,8 +102,10 @@ class AugmentGenerator(keras.utils.Sequence):
     
     def _create_augment_array(self, img):
         result = [preprocess_input(img)]
+        # result = [img / 255.0]
         for i in range(self.inputsize - 1):
             result.append(preprocess_input(self.augment(image=img)["image"]))
+            # result.append(self.augment(image=img)["image"] / 255.0)
         return np.asarray(result)
 
 
@@ -171,7 +173,7 @@ class SingleGenerator(keras.utils.Sequence):
     def __getitem__(self, idx):
         x_names = self.x[idx * self.batchsize:(idx + 1) * self.batchsize]
         y_names = np.asarray(self.y[idx * self.batchsize:(idx + 1) * self.batchsize])
-        result = np.asarray([preprocess_input(self.augment(image=np.asarray(img_to_array(load_img(file_name, target_size=(299, 299)), dtype='uint8')))["image"]) for file_name in x_names])
+        result = np.asarray([self.augment(image=np.asarray(img_to_array(load_img(file_name, target_size=(299, 299)), dtype='uint8')))["image"] for file_name in x_names])
         return result, y_names
 
     def shuffle(self):
