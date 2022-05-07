@@ -6,6 +6,7 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow import keras
 import numpy as np
 import math
+import albumentations as A
 import random
 
 Dataset = Enum("Dataset", "carabid thirty eighty ninety")
@@ -141,6 +142,66 @@ class AugmentGenerator(keras.utils.Sequence):
         return len(self.filenames)
 
 
+class SGBGenerator(keras.utils.Sequence):
+    """
+    A keras Sequence to be used as an image generator for the model.
+    """
+
+    def __init__(self, dataset_names, batch_size, filenames):
+        self.filenames = filenames
+        self.batchsize = batch_size
+        self.dataset_names = dataset_names
+
+        self.gray_aug = A.Compose([A.ToGray(p=1.0)])
+        self.blur_aug = A.Compose([A.Blur(p=1.0)])
+
+        self._filter_files()
+        self.shuffle()
+
+    def _filter_files(self):
+        filtered_names = [name.replace("\\", "/") for name in self.dataset_names]
+        filtered_filenames = {}
+        for category, files in self.filenames.items():
+            filtered_filenames[category] = [file for file in files if file in filtered_names]
+        self.filenames = filtered_filenames
+    
+    def _create_augment_array(self, images):
+        return [np.array([preprocess_input(img) for img in images]), np.array([preprocess_input(self.gray_aug(image=img)["image"]) for img in images]), 
+                np.array([preprocess_input(self.blur_aug(image=img)["image"]) for img in images])]
+        # return [np.array([preprocess_input(img) for img in images]), np.array([preprocess_input(img) for img in images]), 
+        #         np.array([preprocess_input(img) for img in images])]
+
+    def __len__(self):
+        return math.ceil(len(self.x) / self.batchsize)
+
+    def names_at_batch(self, idx):
+        x_names = self.x[idx * self.batchsize:(idx + 1) * self.batchsize]
+        y_names = np.asarray(self.y[idx * self.batchsize:(idx + 1) * self.batchsize])
+        return x_names, y_names
+
+    def __getitem__(self, idx):
+        x_names = self.x[idx * self.batchsize:(idx + 1) * self.batchsize]
+        y_names = np.asarray(self.y[idx * self.batchsize:(idx + 1) * self.batchsize])
+        result = self._create_augment_array([np.asarray(img_to_array(load_img(file_name[0], target_size=(299, 299))), dtype='uint8') for file_name in x_names])
+        return result, y_names
+
+    def shuffle(self):
+        groups = []
+        for category, files in self.filenames.items():
+            subgroup = []
+            for file in files:
+                subgroup.append(file)
+                groups.append((subgroup, category))
+                subgroup = []
+
+        random.shuffle(groups)
+        self.x = np.asarray([group[0] for group in groups])
+        self.y = np.asarray([group[1] for group in groups])
+
+    def num_classes(self):
+        return len(self.filenames)
+
+
 class SingleGenerator(keras.utils.Sequence):
     """
     A keras Sequence to be used as an image generator for the model.
@@ -229,6 +290,13 @@ def prep_data(dataset, keras_train_dataset, keras_val_dataset, batch_size, group
 
 def do_nothing(image):
     return {"image": image}
+
+
+def prep_SGB_dataset(dataset, keras_train_dataset, keras_val_dataset, batch_size):
+    filenames = make_image_dict(*get_filenames(dataset))
+    train_gen = SGBGenerator(keras_train_dataset.file_paths, batch_size, filenames)
+    val_gen = SGBGenerator(keras_val_dataset.file_paths, batch_size, filenames)
+    return train_gen, val_gen
 
 
 def prep_data_augmented(dataset, keras_train_dataset, keras_val_dataset, batch_size, group_size, augment=do_nothing):
