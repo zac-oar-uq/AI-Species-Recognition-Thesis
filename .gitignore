@@ -1,4 +1,7 @@
 datasets/
-models/
-other-models-and-logs/old-aug-models/
-other-models-and-logs/multi-img-models/
+model-saves/
+.dist/
+dist/
+__pycache__/
+__pycache__
+desktop.ini
