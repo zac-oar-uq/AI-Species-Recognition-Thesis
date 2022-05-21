@@ -34,6 +34,27 @@ This folder contains all Tensorboard logs created during the training and valida
 
 Contains all code the build, train and validate the models used throughout this project.  Also contains code to prepare data for models and visualise the extracted features of a selected model.
 
+### model-saves/
+
+All models are saved under a folder named "model-saves", which has been omitted from this repository due to the size of the save files.  To download a model for yourself, use [this Google Drive link](https://drive.google.com/drive/folders/1pT_3Mf6giyD1RMzpwDOIQyeXtXNtmsDe?usp=sharing).
+
+## Datasets
+
+In all code for the project assumes that datasets are downloaded and stored under a folder names "datasets"
+The following datasets were used thoughout the project:
+
+### [carabid](https://www.kaggle.com/datasets/kmldas/insect-identification-from-habitus-images)
+
+Dataset containing 63364 images of beetles, from 291 different species.  Images are all top-down, so there is little room for different perspectives between images.
+
+### [nintey](https://www.kaggle.com/datasets/iamsouravbanerjee/animal-image-dataset-90-different-animals)
+
+Dataset containing 5400 images of mammals, insects and birds from 90 different species.  Images vary greatly in persepective, size and number of subjects.
+
+### [eighty](https://www.kaggle.com/datasets/antoreepjana/animals-detection-images-dataset?select=train)
+
+Dataset containing 27831 images of mammals, insects and birds from 80 different species.  Images are scraped from Google Images, so they are very inconsistent in terms of quality, size, perspective, etc.
+
 ## Requirements
 
 All code for this project was run on an environment with the following:
