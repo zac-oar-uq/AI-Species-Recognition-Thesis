@@ -40,7 +40,7 @@ All models are saved under a folder named "model-saves", which has been omitted 
 
 ## Datasets
 
-In all code for the project assumes that datasets are downloaded and stored under a folder names "datasets"
+In all code for the project assumes that datasets are downloaded and stored under a folder named "datasets"
 The following datasets were used thoughout the project:
 
 ### [carabid](https://www.kaggle.com/datasets/kmldas/insect-identification-from-habitus-images)
